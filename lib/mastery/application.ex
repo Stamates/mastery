@@ -4,12 +4,15 @@ defmodule Mastery.Application do
   @moduledoc false
 
   use Application
+  alias Mastery.Boundary.QuizManager
 
   @impl true
   def start(_type, _args) do
     children = [
       # Starts a worker by calling: Mastery.Worker.start_link(arg)
-      # {Mastery.Worker, arg}
+      {QuizManager, [name: QuizManager]},
+      {Registry, [name: Mastery.Registry.QuizSession, keys: :unique]},
+      {DynamicSupervisor, [name: Mastery.Supervisor.QuizSession, strategy: :one_for_one]}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

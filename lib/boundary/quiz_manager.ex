@@ -6,6 +6,8 @@ defmodule Mastery.Boundary.QuizManager do
   def init(_quizzes), do: {:error, "quizzes must be a map"}
 
   # Client functions
+  def start_link(options \\ []), do: GenServer.start_link(__MODULE__, %{}, options)
+
   def build_quiz(manager \\ __MODULE__, quiz_fields),
     do: GenServer.call(manager, {:build_quiz, quiz_fields})
 
