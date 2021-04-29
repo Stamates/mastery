@@ -2,9 +2,16 @@ defmodule Mastery do
   @moduledoc """
   Documentation for `Mastery`.
   """
-  alias Mastery.Boundary.{QuizSession, QuizManager}
+  alias Mastery.Boundary.{QuizSession, QuizManager, Proctor}
   alias Mastery.Boundary.{TemplateValidator, QuizValidator}
   alias Mastery.Core.Quiz
+
+  def schedule_quiz(quiz_fields, templates, start_at, end_at) do
+    with :ok <- QuizValidator.errors(quiz_fields),
+         true <- Enum.all?(templates, &(:ok == TemplateValidator.errors(&1))),
+         :ok <- Proctor.schedule_quiz(quiz_fields, templates, start_at, end_at),
+         do: :ok
+  end
 
   def build_quiz(fields) do
     with :ok <- QuizValidator.errors(fields),

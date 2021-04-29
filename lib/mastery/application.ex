@@ -4,7 +4,7 @@ defmodule Mastery.Application do
   @moduledoc false
 
   use Application
-  alias Mastery.Boundary.QuizManager
+  alias Mastery.Boundary.{Proctor, QuizManager}
 
   @impl true
   def start(_type, _args) do
@@ -12,6 +12,7 @@ defmodule Mastery.Application do
       # Starts a worker by calling: Mastery.Worker.start_link(arg)
       {QuizManager, [name: QuizManager]},
       {Registry, [name: Mastery.Registry.QuizSession, keys: :unique]},
+      {Proctor, [name: Proctor]},
       {DynamicSupervisor, [name: Mastery.Supervisor.QuizSession, strategy: :one_for_one]}
     ]
 
