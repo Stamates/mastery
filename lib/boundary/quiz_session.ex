@@ -23,8 +23,8 @@ defmodule Mastery.Boundary.QuizSession do
 
   def select_question(name), do: name |> via() |> GenServer.call(:select_question)
 
-  def answer_question(name, answer),
-    do: name |> via() |> GenServer.call({:answer_question, answer})
+  def answer_question(name, answer, persistence_fn),
+    do: name |> via() |> GenServer.call({:answer_question, answer, persistence_fn})
 
   def active_sessions_for(quiz_title) do
     Mastery.Supervisor.QuizSession
@@ -56,7 +56,17 @@ defmodule Mastery.Boundary.QuizSession do
     {:reply, quiz.current_question.asked, {quiz, email}}
   end
 
-  def handle_call({:answer_question, answer}, _from, {quiz, email}) do
+  def handle_call({:answer_question, answer, fun}, _from, {quiz, email}) do
+    fun = fun || fn r, f -> f.(r) end
+    response = Response.new(quiz, email, answer)
+
+    fun.(response, fn r ->
+      quiz
+      |> Quiz.answer_question(r)
+      |> Quiz.select_question()
+    end)
+    |> maybe_finish(email)
+
     quiz
     |> Quiz.answer_question(Response.new(quiz, email, answer))
     |> Quiz.select_question()
