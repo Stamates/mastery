@@ -8,10 +8,10 @@ defmodule Mastery do
 
   @persistence_fn Application.get_env(:mastery, :persistence_fn)
 
-  def schedule_quiz(quiz_fields, templates, start_at, end_at) do
+  def schedule_quiz(quiz_fields, templates, start_at, end_at, notify_pid \\ nil) do
     with :ok <- QuizValidator.errors(quiz_fields),
          true <- Enum.all?(templates, &(:ok == TemplateValidator.errors(&1))),
-         :ok <- Proctor.schedule_quiz(quiz_fields, templates, start_at, end_at),
+         :ok <- Proctor.schedule_quiz(quiz_fields, templates, start_at, end_at, notify_pid),
          do: :ok
   end
 
